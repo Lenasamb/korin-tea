@@ -1,8 +1,10 @@
 (() => {
   "use strict";
 
-  const FRAME_COUNT = 180;
+  const FRAME_COUNT = 72;
   const FRAME_PATH = (index) => `frames/frame_${String(index).padStart(4, "0")}.webp`;
+  const INITIAL_FRAME_COUNT = 6;
+  const PRELOAD_CONCURRENCY = 4;
 
   const loader = document.querySelector("#loader");
   const loaderLabel = document.querySelector("#loader-label");
@@ -13,6 +15,7 @@
   const errorMessage = document.querySelector("#loader-error-message");
   const retryButton = document.querySelector("#retry-button");
   const site = document.querySelector("#site");
+  site.inert = true;
   const canvas = document.querySelector("#story-canvas");
   const track = document.querySelector("#story-track");
   const context = canvas.getContext("2d", { alpha: false });
@@ -21,9 +24,10 @@
   let frames = [];
   let frameState = { index: 0 };
   let resizeFrame = 0;
+  let settledCount = 0;
 
-  function updateProgress(loaded) {
-    const percentage = Math.floor((loaded / FRAME_COUNT) * 100);
+  function updateProgress(settled) {
+    const percentage = Math.floor((settled / FRAME_COUNT) * 100);
     progress.setAttribute("aria-valuenow", String(percentage));
     progressFill.style.width = `${percentage}%`;
     percentLabel.textContent = `${percentage}%`;
@@ -43,40 +47,31 @@
     });
   }
 
-  async function preloadFrames() {
-    loader.classList.remove("is-done");
-    errorPanel.hidden = true;
-    retryButton.disabled = true;
-    loaderLabel.textContent = "Préparation de votre rituel";
-    updateProgress(0);
-
-    let loaded = 0;
+  async function loadFrames(start, end) {
+    let nextIndex = start;
     const errors = [];
-    const imagePromises = Array.from({ length: FRAME_COUNT }, (_, index) =>
-      loadFrame(index)
-        .then((image) => {
-          frames[index] = image;
-          loaded += 1;
-          updateProgress(loaded);
-        })
-        .catch((error) => {
+
+    async function worker() {
+      while (nextIndex < end) {
+        const index = nextIndex;
+        nextIndex += 1;
+
+        try {
+          frames[index] = await loadFrame(index);
+          if (Math.round(frameState.index) === index) drawFrame();
+        } catch (error) {
           errors.push(error.message);
-        })
-    );
-
-    await Promise.all(imagePromises);
-
-    if (errors.length > 0) {
-      showLoadError(errors);
-      return;
+        } finally {
+          settledCount += 1;
+          updateProgress(settledCount);
+        }
+      }
     }
 
-    if (!window.gsap || !window.ScrollTrigger) {
-      showLoadError(["GSAP ou ScrollTrigger n’a pas pu être chargé. Vérifiez votre connexion puis réessayez."]);
-      return;
-    }
+    const workerCount = Math.min(PRELOAD_CONCURRENCY, end - start);
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
-    initializeExperience();
+    return errors;
   }
 
   function showLoadError(errors) {
@@ -87,7 +82,12 @@
   }
 
   function drawFrame() {
-    const image = frames[Math.round(frameState.index)];
+    const requestedIndex = Math.round(frameState.index);
+    let image = frames[requestedIndex];
+    for (let distance = 1; !image && distance < FRAME_COUNT; distance += 1) {
+      image = frames[requestedIndex - distance] || frames[requestedIndex + distance];
+    }
+
     if (!image || !canvas.width || !canvas.height) return;
 
     const dpr = window.devicePixelRatio || 1;
@@ -117,43 +117,50 @@
   }
 
   function initializeExperience() {
-    gsap.registerPlugin(ScrollTrigger);
     resizeCanvas();
 
-    gsap.to(frameState, {
-      index: FRAME_COUNT - 1,
-      ease: "none",
-      onUpdate: drawFrame,
-      scrollTrigger: {
-        trigger: track,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: reducedMotion.matches ? 0 : 1,
-        invalidateOnRefresh: true,
-      },
-    });
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
 
-    document.querySelectorAll(".story-scene").forEach((scene, index) => {
-      if (reducedMotion.matches) return;
-      const copy = scene.querySelector(".scene-copy");
-      const timeline = gsap.timeline({
+      gsap.to(frameState, {
+        index: FRAME_COUNT - 1,
+        ease: "none",
+        onUpdate: drawFrame,
         scrollTrigger: {
-          trigger: scene,
+          trigger: track,
           start: "top top",
-          end: "bottom top",
-          scrub: true,
+          end: "bottom bottom",
+          scrub: reducedMotion.matches ? 0 : 1,
+          invalidateOnRefresh: true,
         },
       });
 
-      timeline
-        .fromTo(
-          copy,
-          { autoAlpha: index === 0 ? 1 : 0, y: index === 0 ? 0 : 18 },
-          { autoAlpha: 1, y: 0, duration: 0.24, ease: "none" }
-        )
-        .to(copy, { autoAlpha: 1, duration: 0.52, ease: "none" })
-        .to(copy, { autoAlpha: 0, y: -12, duration: 0.24, ease: "none" });
-    });
+      document.querySelectorAll(".story-scene").forEach((scene, index) => {
+        if (reducedMotion.matches) return;
+        const copy = scene.querySelector(".scene-copy");
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: scene,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+
+        timeline
+          .fromTo(
+            copy,
+            { autoAlpha: index === 0 ? 1 : 0, y: index === 0 ? 0 : 18 },
+            { autoAlpha: 1, y: 0, duration: 0.24, ease: "none" }
+          )
+          .to(copy, { autoAlpha: 1, duration: 0.52, ease: "none" })
+          .to(copy, { autoAlpha: 0, y: -12, duration: 0.24, ease: "none" });
+      });
+    } else {
+      frameState.index = 0;
+      drawFrame();
+      console.error("GSAP ou ScrollTrigger indisponible : affichage du récit sans animation.");
+    }
 
     window.addEventListener("resize", resizeCanvas, { passive: true });
     window.addEventListener("orientationchange", resizeCanvas, { passive: true });
@@ -161,7 +168,30 @@
     site.inert = false;
     site.classList.add("is-ready");
     loader.classList.add("is-done");
-    ScrollTrigger.refresh();
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  }
+
+  async function preloadFrames() {
+    loader.classList.remove("is-done");
+    errorPanel.hidden = true;
+    retryButton.disabled = true;
+    loaderLabel.textContent = "Préparation de votre rituel";
+    frames = new Array(FRAME_COUNT);
+    settledCount = 0;
+    updateProgress(0);
+
+    const firstBatchEnd = Math.min(INITIAL_FRAME_COUNT, FRAME_COUNT);
+    const initialErrors = await loadFrames(0, firstBatchEnd);
+    initializeExperience();
+
+    if (initialErrors.length > 0) {
+      console.error("Certaines images initiales n’ont pas pu être chargées :", initialErrors);
+    }
+
+    const remainingErrors = await loadFrames(firstBatchEnd, FRAME_COUNT);
+    if (remainingErrors.length > 0) {
+      console.error("Certaines images de l’animation n’ont pas pu être chargées :", remainingErrors);
+    }
   }
 
   retryButton.addEventListener("click", () => {

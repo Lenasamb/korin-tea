@@ -1,6 +1,6 @@
 # AI Agent Skills — Full Catalog
 
-> Auto-generated. Total: **2688 skills** across **129 categories**.
+> Auto-generated. Total: **2689 skills** across **129 categories**.
 > When asked "what skill should I use?", browse this file and suggest the most relevant skill IDs.
 > Install a skill: `Ctrl+Shift+/` → search for the skill ID → press Enter.
 
@@ -322,7 +322,7 @@ Chat widget, Messages, PromptInput, Avatar, LLM _(risk: unknown)_
 - **placecall**: Place real outbound phone calls to US businesses through the PlaceCall API: book, ask, get quotes, then read the outcome and transcript. _(risk: critical)_
 - **postman-collection-generator**: Generate complete, import-ready Postman Collection v2.1 JSON files from natural language API descriptions or cURL commands. _(risk: critical)_
 - **postman-openapi-converter**: Convert OpenAPI 3.x or Swagger 2.0 specs (YAML or JSON) into complete, import-ready Postman Collection v2.1 JSON files. _(risk: critical)_
-- **riffkit**: Riff a winning TikTok into your own short video — study a proven video's emotion formula and regenerate it with your product, character, and language (9 supported). Also makes UGC ad creative. _(risk: critical)_
+- **riffkit**: Create short videos with Riffkit: Adapt a source formula, Swap approved footage, or generate from an idea. Use for UGC ads and localized video; requires an account and render approval. _(risk: critical)_
 - **sdk-dx**: Design SDKs that developers love to use—APIs that feel native, error messages that guide, and experiences that reduce friction. This skill covers creating SDKs that drive adoption through exceptional developer experience rather than aggressive marketing. _(risk: critical)_
 - **sendblue-api**: Send and receive iMessage, SMS, and RCS from application code via the Sendblue HTTP API — text, media, group messages, send styles, reactions, typing indicators, status callbacks, and inbound webhooks. _(risk: critical)_
 - **sendblue-cli**: Send iMessage and SMS from the shell via the @sendblue/cli npm package — outbound sends, contact management, and account setup with no API client or webhook server required. _(risk: critical)_
@@ -2496,6 +2496,7 @@ add data to Google Sheets, find a spreadsheet, check sheet...
 - **json-canvas**: Create and edit JSON Canvas files (.canvas) with nodes, edges, groups, and connections. Use when working with .canvas files, creating visual canvases, mind maps, flowcharts, or when the user mentions Canvas files in Obsidian. _(risk: critical)_
 - **kernel-prompt**: Use when composing or improving an LLM prompt or agent instruction. Asks one round of questions, then returns only the prompt; never performs the task. _(risk: safe)_
 - **markdown-rendering**: Open Markdown reliably in cmux panes and recover from blank rendered surfaces. _(risk: safe)_
+- **mcd-secret-menu-lab**: Plan McDonald's China recipe combinations using an authorized MCP connection for current store menus, prices and nutrition. Use for recreating food hacks or exploring combinations within a budget. _(risk: safe)_
 - **mdpr-skill**: Review MDPR Markdown presentation workflows with semantic hints, visual checks, and deterministic renderer boundaries. _(risk: safe)_
 - **meeting-distiller-pro**: Transform messy meeting notes and transcripts into structured action items, decisions, and follow-ups. Never lose a meeting insight again. _(risk: unknown)_
 - **meeting-notes**: Turns raw meeting notes into structured minutes: conclusion first, then decisions / action items / open questions; every action item must have an owner and a deadline. Use when the user pastes meeting transcripts or rough notes and asks for minutes or a summary. _(risk: safe)_

@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class="site" id="site" inert>
+    <div class="site" id="site">
       <canvas class="story-canvas" id="story-canvas" aria-hidden="true"></canvas>
       <div class="canvas-shade" aria-hidden="true"></div>
 
@@ -113,7 +113,13 @@
     </div>
 
     <noscript>
-      <p class="noscript-message">Ce site immersif nécessite JavaScript pour charger les images et synchroniser le récit au défilement.</p>
+      <style>
+        .loader { display: none !important; }
+        .site { min-height: 100vh; opacity: 1; }
+        .story-canvas { display: none; }
+        .canvas-shade { background: rgba(20, 36, 28, 0.82); }
+      </style>
+      <p class="noscript-message">Activez JavaScript pour profiter du défilement animé. Le récit reste accessible ci-dessous.</p>
     </noscript>
   </body>
 </html>
