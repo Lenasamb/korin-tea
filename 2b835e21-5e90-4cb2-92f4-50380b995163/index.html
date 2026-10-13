@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Kōrin Tea — thés japonais d’origine tracée, récoltés à la main. Découvrez le rituel du calme."
+    />
+    <meta name="theme-color" content="#f5f1e8" />
+    <title>Kōrin Tea — L’art de ralentir</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Chargement du site">
+      <a class="wordmark loader-wordmark" href="#accueil" aria-label="Kōrin Tea, accueil">
+        <span class="wordmark-seal" aria-hidden="true">K</span>
+        <span>Kōrin Tea</span>
+      </a>
+      <p class="loader-label" id="loader-label">Préparation de votre rituel</p>
+      <div class="loader-progress" role="progressbar" aria-label="Chargement des images" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span class="loader-progress-fill" id="loader-progress-fill"></span>
+      </div>
+      <p class="loader-percent" id="loader-percent">0%</p>
+      <div class="loader-error" id="loader-error" hidden>
+        <p id="loader-error-message"></p>
+        <button class="text-button" id="retry-button" type="button">Réessayer</button>
+      </div>
+    </div>
+
+    <div class="site" id="site" inert>
+      <canvas class="story-canvas" id="story-canvas" aria-hidden="true"></canvas>
+      <div class="canvas-shade" aria-hidden="true"></div>
+
+      <header class="site-header">
+        <a class="wordmark" href="#accueil" aria-label="Kōrin Tea, accueil">
+          <span class="wordmark-seal" aria-hidden="true">K</span>
+          <span>Kōrin Tea</span>
+        </a>
+        <a class="header-link" href="#decouvrir">La collection <span aria-hidden="true">↗</span></a>
+      </header>
+
+      <main>
+        <div class="story-track" id="story-track">
+          <section class="story-scene scene-hero" id="accueil" aria-labelledby="hero-title">
+            <div class="scene-copy scene-copy-left">
+              <p class="scene-kicker">Thés d’origine · récolte à la main</p>
+              <h1 id="hero-title">L’art de<br />ralentir.</h1>
+              <p class="scene-description">Une feuille, un geste, un instant qui vous appartient.</p>
+              <a class="scroll-cue" href="#origine"><span class="scroll-cue-line"></span>Défiler pour découvrir</a>
+            </div>
+            <p class="scene-index" aria-hidden="true">01 <span>/ 05</span></p>
+          </section>
+
+          <section class="story-scene scene-origin" id="origine" aria-labelledby="origin-title">
+            <div class="scene-copy scene-copy-right">
+              <p class="scene-kicker">Uji, Kyoto · Japon</p>
+              <h2 id="origin-title">Le temps<br />des collines.</h2>
+              <p class="scene-description">Cueilli à la main, au sommet des collines. Chaque feuille suit la saison et la lumière.</p>
+              <p class="scene-note">Origine tracée. Savoir-faire transmis.</p>
+            </div>
+            <p class="scene-index" aria-hidden="true">02 <span>/ 05</span></p>
+          </section>
+
+          <section class="story-scene scene-ritual" id="rituel" aria-labelledby="ritual-title">
+            <div class="scene-copy scene-copy-left">
+              <p class="scene-kicker">Le geste juste</p>
+              <h2 id="ritual-title">Chaque tasse,<br />un instant à soi.</h2>
+              <p class="scene-description">L’eau, la céramique, le mouvement. La journée trouve enfin son propre rythme.</p>
+              <p class="scene-note">Respirer. Verser. Savourer.</p>
+            </div>
+            <p class="scene-index" aria-hidden="true">03 <span>/ 05</span></p>
+          </section>
+
+          <section class="story-scene scene-collection" id="collection" aria-labelledby="collection-title">
+            <div class="scene-copy scene-copy-right">
+              <p class="scene-kicker">La collection Kōrin</p>
+              <h2 id="collection-title">Quatre thés.<br />Un seul rituel.</h2>
+              <p class="scene-description">Matcha, sencha, hojicha et thé blanc : quatre expressions d’un même calme.</p>
+              <div class="tea-list" aria-label="Les quatre thés de la collection">
+                <span>Matcha</span><span>Sencha</span><span>Hojicha</span><span>Thé blanc</span>
+              </div>
+            </div>
+            <p class="scene-index" aria-hidden="true">04 <span>/ 05</span></p>
+          </section>
+
+          <section class="story-scene scene-cta" id="decouvrir" aria-labelledby="cta-title">
+            <div class="scene-copy scene-copy-center">
+              <p class="scene-kicker">Votre pause commence ici</p>
+              <h2 id="cta-title">Commencez<br />votre rituel.</h2>
+              <p class="scene-description">Choisissez votre thé. Accordez-vous le temps.</p>
+              <a class="button" href="#collection">Découvrir la collection <span aria-hidden="true">↗</span></a>
+            </div>
+            <p class="scene-index" aria-hidden="true">05 <span>/ 05</span></p>
+          </section>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <span>© Kōrin Tea</span>
+        <span>Le calme, en feuille.</span>
+        <a href="#accueil">Retour en haut ↑</a>
+      </footer>
+    </div>
+
+    <noscript>
+      <p class="noscript-message">Ce site immersif nécessite JavaScript pour charger les images et synchroniser le récit au défilement.</p>
+    </noscript>
+  </body>
+</html>
