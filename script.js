@@ -90,7 +90,7 @@
 
     if (!image || !canvas.width || !canvas.height) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const width = canvas.width / dpr;
     const height = canvas.height / dpr;
     const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
@@ -105,7 +105,7 @@
   function resizeCanvas() {
     cancelAnimationFrame(resizeFrame);
     resizeFrame = requestAnimationFrame(() => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const width = window.innerWidth;
       const height = window.innerHeight;
       canvas.width = Math.round(width * dpr);
@@ -116,59 +116,55 @@
     });
   }
 
+  function updateSceneVisibility() {
+    document.querySelectorAll(".story-scene").forEach((scene) => {
+      const rect = scene.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+      scene.classList.toggle("is-visible", isVisible);
+    });
+  }
+
+  function updateFrameFromScroll() {
+    const totalScrollableHeight = Math.max(track.scrollHeight - window.innerHeight, 1);
+    const progress = Math.min(Math.max(window.scrollY / totalScrollableHeight, 0), 1);
+    frameState.index = progress * (FRAME_COUNT - 1);
+    drawFrame();
+    updateSceneVisibility();
+  }
+
   function initializeExperience() {
     resizeCanvas();
+    updateFrameFromScroll();
 
-    if (window.gsap && window.ScrollTrigger) {
-      gsap.registerPlugin(ScrollTrigger);
-
-      gsap.to(frameState, {
-        index: FRAME_COUNT - 1,
-        ease: "none",
-        onUpdate: drawFrame,
-        scrollTrigger: {
-          trigger: track,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: reducedMotion.matches ? 0 : 1,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      document.querySelectorAll(".story-scene").forEach((scene, index) => {
-        if (reducedMotion.matches) return;
-        const copy = scene.querySelector(".scene-copy");
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: scene,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
+    if (!reducedMotion.matches) {
+      let ticking = false;
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          updateFrameFromScroll();
+          ticking = false;
         });
+      };
 
-        timeline
-          .fromTo(
-            copy,
-            { autoAlpha: index === 0 ? 1 : 0, y: index === 0 ? 0 : 18 },
-            { autoAlpha: 1, y: 0, duration: 0.24, ease: "none" }
-          )
-          .to(copy, { autoAlpha: 1, duration: 0.52, ease: "none" })
-          .to(copy, { autoAlpha: 0, y: -12, duration: 0.24, ease: "none" });
-      });
-    } else {
-      frameState.index = 0;
-      drawFrame();
-      console.error("GSAP ou ScrollTrigger indisponible : affichage du récit sans animation.");
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        updateFrameFromScroll();
+      }, { passive: true });
+      window.addEventListener("orientationchange", () => {
+        resizeCanvas();
+        updateFrameFromScroll();
+      }, { passive: true });
     }
 
-    window.addEventListener("resize", resizeCanvas, { passive: true });
-    window.addEventListener("orientationchange", resizeCanvas, { passive: true });
+    document.querySelectorAll(".story-scene").forEach((scene) => {
+      scene.classList.add("is-visible");
+    });
 
     site.inert = false;
     site.classList.add("is-ready");
     loader.classList.add("is-done");
-    if (window.ScrollTrigger) ScrollTrigger.refresh();
   }
 
   async function preloadFrames() {
@@ -198,6 +194,17 @@
     frames = [];
     preloadFrames();
   });
+
+  const contactForm = document.querySelector(".contact-form");
+  if (contactForm) {
+    const statusMessage = contactForm.querySelector(".form-status");
+
+    contactForm.addEventListener("submit", () => {
+      if (statusMessage) {
+        statusMessage.hidden = false;
+      }
+    });
+  }
 
   preloadFrames();
 })();
